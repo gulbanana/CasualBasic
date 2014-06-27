@@ -9,9 +9,14 @@ namespace Casual_Basic
     [TextViewRole(PredefinedTextViewRoles.Document)]
     internal sealed class TextViewCreationListener : IWpfTextViewCreationListener
     {
+        [Export(typeof(AdornmentLayerDefinition))]
+        [Name("Casual_Basic")]
+        [Order(After = PredefinedAdornmentLayers.Text)]
+        public AdornmentLayerDefinition adornmentLayer = null;
+
         public void TextViewCreated(IWpfTextView textView)
         {
-            new BufferEditLister(textView.TextBuffer);
+            new CapsHider(textView, textView.GetAdornmentLayer("Casual_Basic"));
         }
     }
 }

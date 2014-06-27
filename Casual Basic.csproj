@@ -59,7 +59,7 @@
   <ItemGroup>
     <Compile Include="TextViewCreationListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="BufferEditLister.cs" />
+    <Compile Include="CapsHider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="source.extension.vsixmanifest">
