@@ -1,68 +1,72 @@
-﻿using System.Diagnostics;
-using Microsoft.VisualStudio.Text;
+﻿using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Formatting;
-using System.Windows.Media;
+using Microsoft.VisualStudio.Text.Tagging;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Linq;
 
 namespace Casual_Basic
 {
-    public class CapsHider
+    internal sealed class CapsHider
     {
         private readonly string[] _keywords = { "Public", "Private", "Protected", "Friend", "Class", "Interface", "Module", "Namespace", "Sub", "Function", "End" };
         
-        private readonly IWpfTextView _buffer;
-        private readonly IAdornmentLayer _layer;
+        private readonly IWpfTextView _textView;
+        private readonly IAdornmentLayer _adorner;
+        private readonly ITagAggregator<VBKeywordTag> _tagger;
 
         private readonly Brush _foreground;
         private readonly Brush _background;
         private readonly double _pt;
         private readonly FontFamily _font;
 
-        public CapsHider(IWpfTextView buffer, IAdornmentLayer layer)
+        public CapsHider(IWpfTextView textView, IAdornmentLayer adorner, ITagAggregator<VBKeywordTag> tagger)
         {
-            _buffer = buffer;
-            _layer = layer;
+            _textView = textView;
+            _adorner = adorner;
+            _tagger = tagger;
 
             _foreground = new SolidColorBrush(Colors.Blue);
-            _background = new SolidColorBrush(Colors.White);
+            _background = new SolidColorBrush(Colors.Transparent);
             _pt = 13.0;
             _font = new FontFamily("Consolas");
 
-            _buffer.LayoutChanged += LayoutChanged;
+            _textView.LayoutChanged += LayoutChanged;
         }
 
         private void LayoutChanged(object sender, TextViewLayoutChangedEventArgs args)
         {
+            
             foreach (ITextViewLine line in args.NewOrReformattedLines)
             {
-                var lineSpan = new SnapshotSpan(_buffer.TextSnapshot, Span.FromBounds(line.Start, line.End));
-
-                foreach (var keyword in _keywords)
+                foreach (var tag in _tagger.GetTags(line.Extent)) 
                 {
-                    var kwidx = lineSpan.GetText().IndexOf(keyword);
-                    if (kwidx != -1)
+                    AdornTag(tag);
+                }
+            }
+        }
+
+        private void AdornTag(IMappingTagSpan<VBKeywordTag> tag)
+        {
+            foreach (var span in tag.Span.GetSpans(_textView.TextSnapshot))
+            {
+                Geometry g = _textView.TextViewLines.GetMarkerGeometry(span);
+                if (g != null)
+                {
+                    var control = new TextBlock
                     {
-                        var wordSpan = new SnapshotSpan(_buffer.TextSnapshot, Span.FromBounds(line.Start + kwidx, line.Start + kwidx + keyword.Length));
+                        Text = tag.Tag.Lowercase,
+                        Foreground = _foreground,
+                        Background = _background,
+                        FontSize = _pt,
+                        FontFamily = _font
+                    };
 
-                        Geometry g = _buffer.TextViewLines.GetMarkerGeometry(wordSpan);
-                        if (g != null)
-                        {
-                            var control = new TextBlock
-                            {
-                                Text = keyword.ToLower(),
-                                Foreground = _foreground,
-                                Background = _background,
-                                FontSize = _pt,
-                                FontFamily = _font
-                            };
+                    Canvas.SetLeft(control, g.Bounds.Left);
+                    Canvas.SetTop(control, g.Bounds.Top);
 
-                            Canvas.SetLeft(control, g.Bounds.Left);
-                            Canvas.SetTop(control, g.Bounds.Top);
-
-                            _layer.AddAdornment(AdornmentPositioningBehavior.TextRelative, wordSpan, null, control, null);
-                        }
-                    }
+                    _adorner.AddAdornment(AdornmentPositioningBehavior.TextRelative, span, null, control, null);
                 }
             }
         }

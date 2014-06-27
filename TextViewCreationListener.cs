@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.Composition;
-using Microsoft.VisualStudio.Text.Editor;
+﻿using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
+using System.ComponentModel.Composition;
 
 namespace Casual_Basic
 {
@@ -9,6 +10,9 @@ namespace Casual_Basic
     [TextViewRole(PredefinedTextViewRoles.Document)]
     internal sealed class TextViewCreationListener : IWpfTextViewCreationListener
     {
+        [Import]
+        private IViewTagAggregatorFactoryService viewTagAggregatorFactoryService = null;
+
         [Export(typeof(AdornmentLayerDefinition))]
         [Name("Casual_Basic")]
         [Order(After = PredefinedAdornmentLayers.Text)]
@@ -16,7 +20,10 @@ namespace Casual_Basic
 
         public void TextViewCreated(IWpfTextView textView)
         {
-            new CapsHider(textView, textView.GetAdornmentLayer("Casual_Basic"));
+            var adorner = textView.GetAdornmentLayer("Casual_Basic");
+            var aggregator = viewTagAggregatorFactoryService.CreateTagAggregator<VBKeywordTag>(textView);
+
+            new CapsHider(textView, adorner, aggregator);
         }
     }
 }
