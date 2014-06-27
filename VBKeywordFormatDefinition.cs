@@ -7,9 +7,9 @@ namespace Casual_Basic
 {
     [Export(typeof(EditorFormatDefinition))]
     [ClassificationType(ClassificationTypeNames = Name)]
-    [Name(Name)] //The name of the Format
-    [UserVisible(true)] //this should be visible to the end user
-    [Order(Before = Priority.Default)] //set the priority to be after the default classifiers
+    [Name(Name)]
+    [UserVisible(true)]
+    [Order(Before = Priority.Default)]
     internal sealed class VBKeywordFormatDefinition : EditorFormatDefinition
     {
         public const string Name = "vbkeyword";
