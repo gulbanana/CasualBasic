@@ -13,9 +13,28 @@ namespace Casual_Basic
         [Import]
         private IClassificationTypeRegistryService classificationRegistry = null;
 
+        [Import]
+        internal IClassifierAggregatorService classifierAggregator = null;
+
+        internal static bool returningSelf = false;
+
         public IClassifier GetClassifier(ITextBuffer textBuffer)
         {
-            return textBuffer.Properties.GetOrCreateSingletonProperty(() => new VBKeywordClassifier(classificationRegistry.GetClassificationType(VBKeywordFormatDefinition.Name)));
+            if (returningSelf) return null;
+
+            try
+            {
+                returningSelf = true;
+
+                var innerClassifier = classifierAggregator.GetClassifier(textBuffer);
+                var classificationType = classificationRegistry.GetClassificationType(VBKeywordFormatDefinition.Name);
+
+                return textBuffer.Properties.GetOrCreateSingletonProperty(() => new VBKeywordClassifier(classificationType, innerClassifier));
+            }
+            finally
+            {
+                returningSelf = false;
+            }
         }
     }
 }
