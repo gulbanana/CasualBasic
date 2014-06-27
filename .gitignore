@@ -1,0 +1,12 @@
+#VS user files
+*.suo
+*.user
+
+#VS build products
+[Bb]in/
+[Oo]bj/
+TestResults/
+
+#VS profiling
+*.psess
+*.vsp
