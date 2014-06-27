@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.Text.Editor;
+﻿using Microsoft.VisualStudio.Text.Classification;
+using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
 using System.ComponentModel.Composition;
@@ -13,6 +14,9 @@ namespace Casual_Basic
         [Import]
         private IViewTagAggregatorFactoryService viewTagAggregatorFactoryService = null;
 
+        [Import]
+        private IEditorFormatMapService formatMapService = null;
+
         [Export(typeof(AdornmentLayerDefinition))]
         [Name("Casual_Basic")]
         [Order(After = PredefinedAdornmentLayers.Text)]
@@ -22,8 +26,11 @@ namespace Casual_Basic
         {
             var adorner = textView.GetAdornmentLayer("Casual_Basic");
             var aggregator = viewTagAggregatorFactoryService.CreateTagAggregator<ClassificationTag>(textView);
+            var keywordFormatResources = formatMapService.GetEditorFormatMap(textView).GetProperties("EditorFormatDefinition");
 
-            new CapsHider(textView, adorner, aggregator);
+            System.Diagnostics.Debug.WriteLine(keywordFormatResources.Keys);
+
+            new CapsHider(textView, adorner, aggregator, keywordFormatResources);
         }
     }
 }

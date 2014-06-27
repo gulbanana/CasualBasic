@@ -5,13 +5,13 @@ using Microsoft.VisualStudio.Text.Tagging;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Linq;
+using Microsoft.VisualStudio.Text.Classification;
+using System.Windows;
 
 namespace Casual_Basic
 {
     internal sealed class CapsHider
-    {
-        private readonly string[] _keywords = { "Public", "Private", "Protected", "Friend", "Class", "Interface", "Module", "Namespace", "Sub", "Function", "End" };
-        
+    {        
         private readonly IWpfTextView _textView;
         private readonly IAdornmentLayer _adorner;
         private readonly ITagAggregator<ClassificationTag> _tagger;
@@ -21,7 +21,7 @@ namespace Casual_Basic
         private readonly double _pt;
         private readonly FontFamily _font;
 
-        public CapsHider(IWpfTextView textView, IAdornmentLayer adorner, ITagAggregator<ClassificationTag> tagger)
+        public CapsHider(IWpfTextView textView, IAdornmentLayer adorner, ITagAggregator<ClassificationTag> tagger, ResourceDictionary keywordFormatResources)
         {
             _textView = textView;
             _adorner = adorner;
@@ -39,7 +39,7 @@ namespace Casual_Basic
         {
             foreach (ITextViewLine line in args.NewOrReformattedLines)
             {
-                foreach (var tag in _tagger.GetTags(line.Extent).Where(t => t.Tag.ClassificationType.Classification == "keyword"))
+                foreach (var tag in _tagger.GetTags(line.Extent).Where(t => t.Tag.ClassificationType.Classification == VBKeywordFormatDefinition.Name))
                 {
                     AdornTag(tag);
                 }
@@ -53,6 +53,7 @@ namespace Casual_Basic
                 Geometry g = _textView.TextViewLines.GetMarkerGeometry(span);
                 if (g != null)
                 {
+                    
                     var control = new TextBlock
                     {
                         Text = span.GetText().ToLower(),
