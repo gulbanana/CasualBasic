@@ -21,7 +21,7 @@ namespace Casual_Basic
         public void TextViewCreated(IWpfTextView textView)
         {
             var adorner = textView.GetAdornmentLayer("Casual_Basic");
-            var aggregator = viewTagAggregatorFactoryService.CreateTagAggregator<VBKeywordTag>(textView);
+            var aggregator = viewTagAggregatorFactoryService.CreateTagAggregator<ClassificationTag>(textView);
 
             new CapsHider(textView, adorner, aggregator);
         }

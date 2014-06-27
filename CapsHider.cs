@@ -14,14 +14,14 @@ namespace Casual_Basic
         
         private readonly IWpfTextView _textView;
         private readonly IAdornmentLayer _adorner;
-        private readonly ITagAggregator<VBKeywordTag> _tagger;
+        private readonly ITagAggregator<ClassificationTag> _tagger;
 
         private readonly Brush _foreground;
         private readonly Brush _background;
         private readonly double _pt;
         private readonly FontFamily _font;
 
-        public CapsHider(IWpfTextView textView, IAdornmentLayer adorner, ITagAggregator<VBKeywordTag> tagger)
+        public CapsHider(IWpfTextView textView, IAdornmentLayer adorner, ITagAggregator<ClassificationTag> tagger)
         {
             _textView = textView;
             _adorner = adorner;
@@ -37,17 +37,16 @@ namespace Casual_Basic
 
         private void LayoutChanged(object sender, TextViewLayoutChangedEventArgs args)
         {
-            
             foreach (ITextViewLine line in args.NewOrReformattedLines)
             {
-                foreach (var tag in _tagger.GetTags(line.Extent)) 
+                foreach (var tag in _tagger.GetTags(line.Extent).Where(t => t.Tag.ClassificationType.Classification == "keyword"))
                 {
                     AdornTag(tag);
                 }
             }
         }
 
-        private void AdornTag(IMappingTagSpan<VBKeywordTag> tag)
+        private void AdornTag(IMappingTagSpan<ClassificationTag> tag)
         {
             foreach (var span in tag.Span.GetSpans(_textView.TextSnapshot))
             {
@@ -56,7 +55,7 @@ namespace Casual_Basic
                 {
                     var control = new TextBlock
                     {
-                        Text = tag.Tag.Lowercase,
+                        Text = span.GetText().ToLower(),
                         Foreground = _foreground,
                         Background = _background,
                         FontSize = _pt,
