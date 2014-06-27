@@ -1,7 +1,10 @@
 Casual Basic
 ============
 
+![Screenshot](/screenshot.png?raw=true)
+
 Casual Basic is a Visual Studio extension for removing All Those CapitalLetters From VB.Net Code Which Are Not Necessary To The Compiler But ThereIs No Way You Can Turn Them Off. 
+
 It doesn't actually make any changes to your source code; that still gets auto-capitalised and saved on disk with EndIfs intact. All the extension does is draw uncapitalised text on top of it in your editor.
 
 Installation
