@@ -7,16 +7,11 @@ namespace Casual_Basic
     [Export(typeof(IWpfTextViewCreationListener))]
     [ContentType("Basic")]
     [TextViewRole(PredefinedTextViewRoles.Document)]
-    internal sealed class CreationListener : IWpfTextViewCreationListener
+    internal sealed class TextViewCreationListener : IWpfTextViewCreationListener
     {
-        [Export(typeof(AdornmentLayerDefinition))]
-        [Name("Casual_Basic")]
-        [Order(After = PredefinedAdornmentLayers.Selection, Before = PredefinedAdornmentLayers.Text)]
-        public AdornmentLayerDefinition editorAdornmentLayer = null;
-
         public void TextViewCreated(IWpfTextView textView)
         {
-            new Casual_Basic(textView);
+            new BufferEditLister(textView.TextBuffer);
         }
     }
 }
